@@ -1,0 +1,30 @@
+[package]
+name = "qalaxy"
+version = "0.1.0"
+authors = ["Mr.Panda <xivistudios@gmail.com>"]
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+js-sys = "0.3.44"
+
+[dependencies.serde]
+features = ["derive"]
+version = "1.0"
+
+[dependencies.wasm-bindgen]
+features = ["serde-serialize"]
+version = "0.2"
+
+[dependencies.web-sys]
+version = "0.3.4"
+features = [
+    "CanvasRenderingContext2d",
+    "HtmlCanvasElement",
+    "TextMetrics",
+    "Document",
+    "Element",
+    "Window"
+]
