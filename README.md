@@ -1,5 +1,5 @@
 # Qalaxy
-使用WebAssembly编写的高性能弹幕系统.
+使用WebAssembly编写的弹幕插件.
 
 
 ### build
