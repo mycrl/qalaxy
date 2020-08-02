@@ -21,7 +21,7 @@ export default class Queue {
      * @returns {Promise<void>}
      * @private
      */
-    async poll() {
+    async poll_worker() {
         this.done = false
         const template = new Array(this.rate).fill(undefined)
         const values = template.map(() => this.queue.shift())
@@ -39,7 +39,7 @@ export default class Queue {
     async change() {
         await undefined
         if (!this.done) return null
-        if (this.done) void await this.poll()
+        if (this.done) void await this.poll_worker()
         if (this.queue.length > 0) return this.change()
     }
     

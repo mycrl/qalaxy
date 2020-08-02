@@ -90,11 +90,21 @@ export default class Display extends Queue {
     }
     
     /**
+     * 延时计算
+     * @param {number} width 宽度
+     * @returns {number}
+     * @private
+     */
+    delay(width) {
+        
+    }
+    
+    /**
      * 主循环
      * @returns {void}
      * @private
      */
-    poll() {
+    async poll() {
         const fore = this.fore_index()
         const next = this.next_index()
         const {clientWidth} = this.option.el
