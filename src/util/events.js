@@ -6,9 +6,9 @@
  */
 export default class EventEmitter {
     constructor() {
-        this.listener = {}
-        this.events = {}
-        this.index = -1
+        this._listener = {}
+        this._events = {}
+        this._index = -1
     }
     
     /**
@@ -17,9 +17,9 @@ export default class EventEmitter {
      * @returns {void}
      * @private
      */
-    some(event) {
-       if (!this.events[event]) {
-            this.events[event] = new Set()
+    event_some(event) {
+       if (!this._events[event]) {
+            this._events[event] = new Set()
         }
     }
     
@@ -31,12 +31,12 @@ export default class EventEmitter {
      * @returns {number}
      * @private
      */
-    bind(event, handle, once) {
-        this.some(event)
-        this.index += 1
-        const index = this.index
-        this.events[event].add({index, handle, once})
-        this.listener[index] = event
+    event_bind(event, handle, once) {
+        this.event_some(event)
+        this._index += 1
+        const index = this._index
+        this._events[event].add({index, handle, once})
+        this._listener[index] = event
         return index
     }
 
@@ -48,7 +48,7 @@ export default class EventEmitter {
      * @public
      */
     on(event, handle) {
-        return this.bind(event, handle, false)
+        return this.event_bind(event, handle, false)
     }
 
     /**
@@ -59,7 +59,7 @@ export default class EventEmitter {
      * @public
      */
     once(event, handle) {
-        return this.bind(event, handle, true)
+        return this.event_bind(event, handle, true)
     }
     
     /**
@@ -69,7 +69,7 @@ export default class EventEmitter {
      * @public
      */
     remove(event) {
-        delete this.events[event]
+        delete this._events[event]
     }
     
     /**
@@ -79,10 +79,10 @@ export default class EventEmitter {
      * @public
      */
     pop(id) {
-        const event = this.listener[id]
-        const context = this.events[event][id]
-        this.events[event].delete(context)
-        delete this.listener[id]
+        const event = this._listener[id]
+        const context = this._events[event][id]
+        this._events[event].delete(context)
+        delete this._listener[id]
     }
 
     /**
@@ -93,10 +93,10 @@ export default class EventEmitter {
      * @public
      */
     emit(event, ...argv) {
-        if (this.events[event]) {
-            this.events[event].forEach(x => {
+        if (this._events[event]) {
+            this._events[event].forEach(x => {
                 x && x.handle(...argv)
-                x && x.once && this.events[event]
+                x && x.once && this._events[event]
                     .delete(x)
             })
         }

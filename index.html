@@ -2,51 +2,11 @@
     <head>
         <title>DEMO</title>
         <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
-        <link rel="stylesheet" href="src/style.css"/>
-        <style>
-            * { margin: 0; padding: 0; }
-            #testing { position: fixed; width: 100%; height: 100%; top: 0; left: 0; }
-        </style>
+        <script type="module" src="example/index.js"></script>
+        <link rel="stylesheet" href="example/style.css"/>
     </head>
     <body>
         <div id="testing">
         </div>
     </body>
-    <script type="module">
-        import Qalaxy from "./src/index.js"
-        
-        function rand(rang) {
-            return Math.ceil(Math.random() * rang)
-        }
-        
-        function mock() {
-            return new Array(rand(200)).fill({}).map(() => ({
-                text: new Array(rand(20)).fill(0).map(x => rand(10)).join(""),
-                color: `rgba(${new Array(3).fill(0).map(() => rand(255))}, 1)`
-            }))
-        }
-        
-        window.onload = () => {
-            const { clientWidth, clientHeight } = document.documentElement
-            
-            // 画布实例
-            // 弹幕插件实例
-            const qalaxy = new Qalaxy({
-                el: document.getElementById("testing"),
-                rate: 10,
-                default: {
-                    opacity: 0.7,
-                    size: 14,
-                    font: "cursive",
-                    color: "#fff"
-                }
-            })
-      
-            // 推送弹幕
-            // 运行动画
-            setInterval(() => {
-                qalaxy.append(mock())    
-            }, 1000)
-        }
-    </script>
 </html>

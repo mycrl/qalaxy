@@ -1,30 +1,34 @@
-import Queue from "./queue.js"
+import EventEmitter from "./util/events.js"
 
 /**
  * 可视区
  * @class
  */
-export default class Display extends Queue {
+export default class Display extends EventEmitter {
     
     /**
-     * @param {element} [el] 画布节点
-     * @param {number} [rate] 帧移动速率
-     * @param {string} [default.color] 默认字体颜色
-     * @param {number} [default.opacity] 默认字体透明度
-     * @param {number} [default.size] 默认字体大小
-     * @param {string} [default.font] 默认字体
+     * @param {element} [option.el] 画布节点
+     * @param {element} [option.render] 渲染画布节点
+     * @param {number} [option.rate] 帧移动速率
+     * @param {string} [option.color] 默认字体颜色
+     * @param {number} [option.opacity] 默认字体透明度
+     * @param {number} [option.size] 默认字体大小
+     * @param {string} [option.font] 默认字体
      * @constructor
      */
     constructor(option) {
-        super(1)
-        this.map = []
-        this.index = 0
-        this.body = document.createElement("DIV")
-        this.display = document.createElement("DIV")
-        this.render = document.createElement("CANVAS")
-        this.values = [0, 0, 0].map(() => document.createElement("IMG"))
-        this.option = Object.assign(option, { render: this.render })
-        this.init()
+        super()
+        this.option = option
+        this.display_map = []
+        this.display_deplay = 0
+        this.display_animation = null
+        this.display_poll_worker = false
+        this.display_body = document.createElement("DIV")
+        this.display_view = document.createElement("CANVAS")
+        this.display_context = this.display_view.getContext("2d")
+        this.move_rate = this.option.el.clientWidth / option.rate / 1000
+        this.display_worker = this.display_poll.bind(this)
+        this.display_init()
     }
     
     /**
@@ -32,98 +36,109 @@ export default class Display extends Queue {
      * @returns {void}
      * @private
      */
-    init() {
-        const {clientWidth} = this.option.el
-        const transition = this.option.rate + "s"
-        this.body.appendChild(this.render)
-        this.body.appendChild(this.display)
-        this.option.el.appendChild(this.body)
-        this.display.appendChild(this.values[0])
-        this.display.appendChild(this.values[1])
-        this.display.appendChild(this.values[2])
-        this.body.className = "Qalaxy"
-        this.display.className = "Qalaxy_Display"
-        this.render.className = "Qalaxy_Render"
-        this.render.width = Math.floor(this.body.clientWidth * 2)
-        this.render.height = this.body.clientHeight
-        this.values[0].className = "Qalaxy_Value"
-        this.values[0].style.transitionDuration = transition
-        this.values[0].style.left = clientWidth + "px"
-        this.values[1].className = "Qalaxy_Value"
-        this.values[1].style.transitionDuration = transition
-        this.values[1].style.left = clientWidth + "px"
-        this.values[2].className = "Qalaxy_Value"
-        this.values[2].style.transitionDuration = transition
-        this.values[2].style.left = clientWidth + "px"
-        this.consume(this.push.bind(this))
+    display_init() {
+        const {clientWidth, clientHeight} = this.option.el
+        this.display_body.appendChild(this.option.render)
+        this.display_body.appendChild(this.display_view)
+        this.display_body.className = "Qalaxy"
+        this.display_view.className = "Qalaxy_Display"
+        this.display_view.width = Math.floor(clientWidth * 2)
+        this.display_view.height = clientHeight
+        this.display_view.style.opacity = this.option.opacity
+        this.option.render.className = "Qalaxy_Render"
+        this.option.render.width = Math.floor(clientWidth * 2)
+        this.option.render.height = clientHeight
+        this.option.el.appendChild(this.display_body)
     }
     
     /**
-     * 下个索引
-     * @returns {number}
-     * @private
-     */
-    next_index() {
-        const target = this.index + 1
-        return target === 3 ? 0 : target
-    }
-    
-    /**
-     * 上个索引
-     * @returns {number}
-     * @private
-     */
-    fore_index() {
-        const target = this.index - 1
-        return target < 0 ? 2 : target
-    }
-    
-    /**
-     * 设置视图
+     * 清空画布
      * @returns {void}
      * @private
      */
-    set_view() {
-        const {url, width} = this.map.pop()
-        this.values[this.index].style.left = (0 - width) + "px"
-        this.values[this.index].src = url
+    display_clear() {
+        const {width, height} = this.display_view
+        this.display_context.clearRect(0, 0, width, height)
     }
     
     /**
-     * 延时计算
-     * @param {number} width 宽度
-     * @returns {number}
+     * 绘图
+     * @param {number} deplay 时间偏移
+     * @returns {void}
      * @private
      */
-    delay(width) {
-        
+    display_draw(deplay) {
+        this.display_clear()
+        const offset_date = Math.ceil(deplay - this.display_deplay)
+        const move = this.display_deplay === 0 ? 0 : offset_date * this.move_rate
+        this.display_map.forEach((value, i) => {
+            this.display_context.drawImage(value.bitmap, value.offset, 0)
+            this.display_map[i].offset -= move
+        })
+    }
+    
+    /**
+     * 检查是否溢出
+     * @returns {void}
+     * @private
+     */
+    display_overflow() {
+        if (this.display_map.length > 0) {
+            const {offset, bitmap: {width}} = this.display_map[0]
+            offset <= 0 - width && this.display_map.pop()
+        }
     }
     
     /**
      * 主循环
+     * @param {number} deplay 时间偏移
      * @returns {void}
      * @private
      */
-    async poll() {
-        const fore = this.fore_index()
-        const next = this.next_index()
-        const {clientWidth} = this.option.el
-        this.map.length > 0 && this.set_view()
-        this.values[fore].style.left = clientWidth + "px"
-        this.values[next].style.left = clientWidth + "px"
-        this.index = next
+    display_poll(deplay) {
+        const is_empty = this.display_map.length === 0
+        !is_empty && this.display_draw(deplay)
+        !is_empty && this.display_start()
+        is_empty && this.display_stop()
+        this.display_deplay = deplay
+        this.display_overflow()
+    }
+    
+    /**
+     * 停止主循环
+     * @returns {void}
+     * @private
+     */
+    display_stop() {
+        this.display_poll_worker = false
+        cancelAnimationFrame(this.display_animation)
+    }
+    
+    /**
+     * 启动主循环
+     * @returns {void}
+     * @private
+     */
+    display_start() {
+        this.display_poll_worker = true
+        const animation = requestAnimationFrame(this.display_worker)
+        this.display_animation = animation
     }
     
     /**
      * 推送图像
-     * @param {Blob} [blob] 图像数据
-     * @param {number} [width] 图像内容宽度
+     * @param {ImageBitmap} [bitmap] 图像
      * @returns {void}
-     * @private
+     * @public
      */
-    async push({blob, width}) {
-        const url = URL.createObjectURL(blob)
-        this.map.unshift({url, width})
-        await this.poll()
+    display_push(bitmap) {
+        const {clientWidth} = this.option.el
+        const template = {offset: clientWidth, bitmap: {width: 0}}
+        const fore = this.display_map[0] || template
+        const prediction_offset = fore.offset + fore.bitmap.width
+        const is_overflow = prediction_offset <= clientWidth
+        const offset = is_overflow ? clientWidth : prediction_offset
+        this.display_map.unshift({bitmap, offset})
+        !this.display_poll_worker && this.display_start()
     }
 }

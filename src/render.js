@@ -1,30 +1,29 @@
-import EventEmitter from "./events.js"
+import Display from "./display.js"
 
 /**
  * 渲染器
  * @class
  */
-export default class Render extends EventEmitter {
+export default class Render extends Display {
     
     /**
-     * @param {element} [el] 画布节点
-     * @param {element} [render] 渲染画布节点
-     * @param {number} [rate] 帧移动速率
-     * @param {string} [default.color] 默认字体颜色
-     * @param {number} [default.opacity] 默认字体透明度
-     * @param {number} [default.size] 默认字体大小
-     * @param {string} [default.font] 默认字体
+     * @param {element} [option.el] 画布节点
+     * @param {element} [option.render] 渲染画布节点
+     * @param {number} [option.rate] 帧移动速率
+     * @param {string} [option.color] 默认字体颜色
+     * @param {number} [option.opacity] 默认字体透明度
+     * @param {number} [option.size] 默认字体大小
+     * @param {string} [option.font] 默认字体
      * @constructor
      */
     constructor(option) {
-        super()
-        this.index = 0
-        this.offset = 0
-        this.stack = []
-        this.option = option
-        this.context = option.render.getContext("2d")
-        this.context.font = [option.default.size, option.default.font].join("px ")
-        setInterval(this.poll.bind(this), 1000)
+        super(option)
+        this.render_index = 0
+        this.render_offset = 0
+        this.render_stack = []
+        this.render_context = this.option.render.getContext("2d")
+        this.render_context.font = [this.option.size, this.option.font].join("px ")
+        setInterval(this.render_poll.bind(this), 1000)
     }
     
     /**
@@ -32,12 +31,12 @@ export default class Render extends EventEmitter {
      * @returns {void}
      * @private
      */
-    async poll() {
+    async render_poll() {
         const {rate} = this.option
         const {clientWidth} = this.option.el
-        this.offset += Math.floor(clientWidth / rate)
-        this.index += 1
-        await this.done()
+        this.render_offset += Math.floor(clientWidth / rate)
+        this.render_index += 1
+        await this.render_done()
     }
     
     /**
@@ -48,8 +47,8 @@ export default class Render extends EventEmitter {
      * @returns {void}
      * @private
      */
-    max_row() {
-        const size = this.option.default.size
+    render_max_row() {
+        const size = this.option.size
         const height = this.option.render.height
         return Math.floor(height / size) - 1
     }
@@ -59,21 +58,10 @@ export default class Render extends EventEmitter {
      * @returns {number}
      * @private
      */
-    max_width() {
-        return this.stack[this.stack.length - 1]
+    render_max_width() {
+        return this.render_stack[this.render_stack.length - 1]
             .map(x => x.offset + x.width)
             .reduce((x, y) => x > y ? x : y)
-    }
-    
-    /**
-     * 获取图像数据
-     * @returns {Promise<Blob>}
-     * @private
-     */
-    as_blob() {
-        return new Promise(resolve => {
-            this.option.render.toBlob(resolve)
-        })
     }
     
     /**
@@ -81,11 +69,12 @@ export default class Render extends EventEmitter {
      * @returns {Promise<Blob>}
      * @private
      */
-    async save() {
-        const max = this.max_width()
-        const blob = await this.as_blob()
-        this.emit("frame", blob, max)
-        this.clear()
+    async render_save() {
+        const width = this.render_max_width()
+        const render = this.option.render
+        const height = this.option.render.height
+        this.display_push(await createImageBitmap(render, 0, 0, width, height))
+        this.render_clear()
     }
     
     /**
@@ -93,11 +82,11 @@ export default class Render extends EventEmitter {
      * @returns {void}
      * @private
      */
-    async done() {
-        const reslove = this.index >= this.option.rate
-        const empty = this.stack.length === 0
-        !empty && reslove && this.save()        
-        reslove && this.reserve()
+    async render_done() {
+        const reslove = this.render_index >= this.option.rate
+        const empty = this.render_stack.length === 0
+        !empty && reslove && this.render_save()        
+        reslove && this.render_reserve()
     }
     
     /**
@@ -109,13 +98,13 @@ export default class Render extends EventEmitter {
      * @returns {void}
      * @private
      */
-    draw(index, i, value, max) {
+    render_draw(index, i, value, max) {
         const row = i > max ? i - max : i
-        const top = (row + 1) * this.option.default.size
-        this.stack[index][i].offset = this.offset
-        this.stack[index][i].width = this.context.measureText(value.text).width + 20
-        this.context.fillStyle = value.color || this.option.default.color
-        this.context.fillText(value.text, this.stack[index][i].offset, top)
+        const top = (row + 1) * this.option.size
+        this.render_stack[index][i].offset = this.render_offset
+        this.render_stack[index][i].width = this.render_context.measureText(value.text).width + 20
+        this.render_context.fillStyle = value.color || this.option.color
+        this.render_context.fillText(value.text, this.render_stack[index][i].offset, top)
     }
     
     /**
@@ -123,11 +112,11 @@ export default class Render extends EventEmitter {
      * @returns {void}
      * @private
      */
-    forward() {
-        const max = this.max_row()
-        const index = this.stack.length - 1
-        this.stack[index].forEach((value, i) => {
-            this.draw(index, i, value, max)
+    render_forward() {
+        const max = this.render_max_row()
+        const index = this.render_stack.length - 1
+        this.render_stack[index].forEach((value, i) => {
+            this.render_draw(index, i, value, max)
         })
     }
     
@@ -136,9 +125,9 @@ export default class Render extends EventEmitter {
      * @returns {void}
      * @public
      */
-    reserve() {
-        this.offset = 0
-        this.index = 0
+    render_reserve() {
+        this.render_offset = 0
+        this.render_index = 0
     }
     
     /**
@@ -146,10 +135,10 @@ export default class Render extends EventEmitter {
      * @returns {void}
      * @private
      */
-    clear() {
+    render_clear() {
         const {width, height} = this.option.render
-        this.context.clearRect(0, 0, width, height)
-        this.stack = []
+        this.render_context.clearRect(0, 0, width, height)
+        this.render_stack = []
     }
     
     /**
@@ -158,8 +147,8 @@ export default class Render extends EventEmitter {
      * @returns {void}
      * @public
      */
-    push(values) {
-        this.stack.push(values)
-        this.forward()
+    render_push(values) {
+        this.render_stack.push(values)
+        this.render_forward()
     }
 }
