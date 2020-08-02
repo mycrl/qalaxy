@@ -1,12 +1,11 @@
 import Render from "./render.js"
 import Display from "./display.js"
-import EventEmitter from "./events.js"
 
 /**
  * 弹幕类
  * @class
  */
-export default class Qalaxy extends EventEmitter {
+export default class Qalaxy {
     
     /**
      * @param {element} [el] 画布节点
@@ -18,7 +17,6 @@ export default class Qalaxy extends EventEmitter {
      * @constructor
      */
     constructor(option) {
-        super()
         this.option = option
         this.display = new Display(option)
         this.render = new Render(option)
@@ -32,7 +30,7 @@ export default class Qalaxy extends EventEmitter {
      */
     init() {
         this.render.on("frame", (blob, width) => {
-            this.display.push(blob, width)
+            this.display.produce({blob, width})
         })
     }
     

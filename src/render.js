@@ -32,12 +32,12 @@ export default class Render extends EventEmitter {
      * @returns {void}
      * @private
      */
-    poll() {
+    async poll() {
         const {rate} = this.option
         const {clientWidth} = this.option.el
         this.offset += Math.floor(clientWidth / rate)
         this.index += 1
-        this.done()
+        await this.done()
     }
     
     /**
@@ -66,21 +66,38 @@ export default class Render extends EventEmitter {
     }
     
     /**
+     * 获取图像数据
+     * @returns {Promise<Blob>}
+     * @private
+     */
+    as_blob() {
+        return new Promise(resolve => {
+            this.option.render.toBlob(resolve)
+        })
+    }
+    
+    /**
+     * 保存截图
+     * @returns {Promise<Blob>}
+     * @private
+     */
+    async save() {
+        const max = this.max_width()
+        const blob = await this.as_blob()
+        this.emit("frame", blob, max)
+        this.clear()
+    }
+    
+    /**
      * 检查是否完成单帧
      * @returns {void}
      * @private
      */
-    done() {
-        const {render, rate} = this.option
+    async done() {
+        const reslove = this.index >= this.option.rate
         const empty = this.stack.length === 0
-        const reslove = this.index >= rate
-        if (reslove)
-            this.offset = 0
-            this.index = 0
-        !empty && reslove && render.toBlob(blob => {
-            this.emit("frame", blob, this.max_width())
-            this.reset()
-        })
+        !empty && reslove && this.save()        
+        reslove && this.reserve()
     }
     
     /**
@@ -109,15 +126,27 @@ export default class Render extends EventEmitter {
     forward() {
         const max = this.max_row()
         const index = this.stack.length - 1
-        this.stack[index].forEach((value, i) => this.draw(index, i, value, max))
+        this.stack[index].forEach((value, i) => {
+            this.draw(index, i, value, max)
+        })
     }
     
     /**
-     * 重置
+     * 恢复初始状态
      * @returns {void}
      * @public
      */
-    reset() {
+    reserve() {
+        this.offset = 0
+        this.index = 0
+    }
+    
+    /**
+     * 清空画布
+     * @returns {void}
+     * @private
+     */
+    clear() {
         const {width, height} = this.option.render
         this.context.clearRect(0, 0, width, height)
         this.stack = []

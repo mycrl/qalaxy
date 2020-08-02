@@ -1,10 +1,10 @@
-import EventEmitter from "./events.js"
+import Queue from "./queue.js"
 
 /**
  * 可视区
  * @class
  */
-export default class Display extends EventEmitter {
+export default class Display extends Queue {
     
     /**
      * @param {element} [el] 画布节点
@@ -16,7 +16,7 @@ export default class Display extends EventEmitter {
      * @constructor
      */
     constructor(option) {
-        super()
+        super(1)
         this.map = []
         this.index = 0
         this.body = document.createElement("DIV")
@@ -24,7 +24,6 @@ export default class Display extends EventEmitter {
         this.render = document.createElement("CANVAS")
         this.values = [0, 0, 0].map(() => document.createElement("IMG"))
         this.option = Object.assign(option, { render: this.render })
-        // setInterval(this.poll.bind(this), option.rate * 1000)
         this.init()
     }
     
@@ -50,52 +49,44 @@ export default class Display extends EventEmitter {
         this.values[0].className = "Qalaxy_Value"
         this.values[0].style.transitionDuration = transition
         this.values[0].style.left = clientWidth + "px"
-        this.values[0].style.backgroundColor = "#000"
-        
         this.values[1].className = "Qalaxy_Value"
         this.values[1].style.transitionDuration = transition
-        this.values[1].style.left = clientWidth * 2 + "px"
-        this.values[1].style.backgroundColor = "#0c9cf8"
-        
+        this.values[1].style.left = clientWidth + "px"
         this.values[2].className = "Qalaxy_Value"
         this.values[2].style.transitionDuration = transition
-        this.values[2].style.left = 0 - clientWidth + "px"
-        this.values[2].style.backgroundColor = "#00b150"
+        this.values[2].style.left = clientWidth + "px"
+        this.consume(this.push.bind(this))
     }
     
     /**
      * 下个索引
-     * @param {number} index 索引
      * @returns {number}
      * @private
      */
-    next_index(index) {
-        const target = index + 1
+    next_index() {
+        const target = this.index + 1
         return target === 3 ? 0 : target
     }
     
     /**
      * 上个索引
-     * @param {number} index 索引
      * @returns {number}
      * @private
      */
-    fore_index(index) {
-        const target = index - 1
+    fore_index() {
+        const target = this.index - 1
         return target < 0 ? 2 : target
     }
     
     /**
-     * 控制显示
+     * 设置视图
      * @returns {void}
      * @private
      */
-    display_update() {
-        const fore = this.fore_index(this.index)
-        const {opacity} = this.option.default
-        this.values.forEach((value, index) => {
-            value.style.opacity = fore === index ? 0 : opacity
-        })
+    set_view() {
+        const {url, width} = this.map.pop()
+        this.values[this.index].style.left = (0 - width) + "px"
+        this.values[this.index].src = url
     }
     
     /**
@@ -104,28 +95,25 @@ export default class Display extends EventEmitter {
      * @private
      */
     poll() {
-        // this.map.shift()
+        const fore = this.fore_index()
+        const next = this.next_index()
         const {clientWidth} = this.option.el
-        const next = this.next_index(this.index)
-        const nexts = this.next_index(next)
-        this.values[this.index].style.left = 0 - clientWidth + "px"
-        this.values[nexts].style.left = clientWidth + "px"
-        this.values[next].style.left = "0px"
-        this.display_update()
+        this.map.length > 0 && this.set_view()
+        this.values[fore].style.left = clientWidth + "px"
+        this.values[next].style.left = clientWidth + "px"
         this.index = next
     }
     
     /**
      * 推送图像
-     * @param {Blob} blob 图像数据
-     * @param {number} width 图像内容宽度
+     * @param {Blob} [blob] 图像数据
+     * @param {number} [width] 图像内容宽度
      * @returns {void}
-     * @public
+     * @private
      */
-    push(blob, width) {
-        this.map.push({
-            url: URL.createObjectURL(blob),
-            width
-        })
+    async push({blob, width}) {
+        const url = URL.createObjectURL(blob)
+        this.map.unshift({url, width})
+        await this.poll()
     }
 }

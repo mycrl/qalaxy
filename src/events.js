@@ -34,7 +34,7 @@ export default class EventEmitter {
     bind(event, handle, once) {
         this.some(event)
         this.index += 1
-        let index = this.index
+        const index = this.index
         this.events[event].add({index, handle, once})
         this.listener[index] = event
         return index
@@ -79,8 +79,8 @@ export default class EventEmitter {
      * @public
      */
     pop(id) {
-        let event = this.listener[id]
-        let context = this.events[event][id]
+        const event = this.listener[id]
+        const context = this.events[event][id]
         this.events[event].delete(context)
         delete this.listener[id]
     }

@@ -27,9 +27,10 @@
 
 .Qalaxy > .Qalaxy_Display > .Qalaxy_Value {
     transition-timing-function: linear;
+    background-color: rgba(0, 0, 0, 0);
     transition-property: left;
     position: absolute;
     height: 100%;
-    width: 100%;
+    width: auto;
     top: 0;
 }
