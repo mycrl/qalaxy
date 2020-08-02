@@ -12,5 +12,18 @@ const CONFIGURE = {
 
 window.addEventListener("load", function() {
     const qalaxy = new Qalaxy(CONFIGURE)
-    setInterval(() => qalaxy.append(MockValues()), 1000)
+    setInterval(() => qalaxy.append(MockValues()), 300)
+    
+    const date = document.getElementById("time")
+    date.innerText = "倒计时: 10"
+    
+    let index = 0
+    let loop = setInterval(() => {
+        index += 1
+        date.innerText = "倒计时: " + String(10 - index)
+        if (index >= 10) {
+            clearInterval(loop)
+            date.innerText = ""
+        }
+    }, 1000)
 })

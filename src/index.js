@@ -20,6 +20,7 @@ export default class Qalaxy extends Render {
      */
     constructor(option) {
         super(Configure(option))
+        this.poll_worker = this.qalaxy_poll.bind(this)
         this.qalaxy_init()
     }
     
@@ -30,6 +31,20 @@ export default class Qalaxy extends Render {
      */
     qalaxy_init() {
         StyleRender()
+        requestAnimationFrame(this.poll_worker)
+    }
+    
+    /**
+     * 主循环
+     * @param {number} deplay 时间偏移
+     * @returns {void}
+     * @private
+     */
+    qalaxy_poll(deplay) {
+        this.display_poll(deplay)
+        this.render_poll(deplay)
+        this.deplay = deplay
+        requestAnimationFrame(this.poll_worker)
     }
     
     /**

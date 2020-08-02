@@ -23,7 +23,17 @@ export default class Render extends Display {
         this.render_stack = []
         this.render_context = this.option.render.getContext("2d")
         this.render_context.font = [this.option.size, this.option.font].join("px ")
-        setInterval(this.render_poll.bind(this), 1000)
+        setInterval(this.render_loop.bind(this), 1000)
+    }
+    
+    /**
+     * 定时器循环
+     * @returns {void}
+     * @private
+     */
+    async render_loop() {
+        this.render_index += 1
+        await this.render_done()
     }
     
     /**
@@ -31,12 +41,10 @@ export default class Render extends Display {
      * @returns {void}
      * @private
      */
-    async render_poll() {
-        const {rate} = this.option
-        const {clientWidth} = this.option.el
-        this.render_offset += Math.floor(clientWidth / rate)
-        this.render_index += 1
-        await this.render_done()
+    async render_poll(deplay) {
+        const offset_date = Math.ceil(deplay - this.deplay)
+        const move = offset_date * this.move_rate
+        this.render_offset += move
     }
     
     /**
@@ -126,8 +134,8 @@ export default class Render extends Display {
      * @public
      */
     render_reserve() {
-        this.render_offset = 0
         this.render_index = 0
+        this.render_offset = 0
     }
     
     /**

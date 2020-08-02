@@ -18,16 +18,13 @@ export default class Display extends EventEmitter {
      */
     constructor(option) {
         super()
+        this.deplay = null
         this.option = option
         this.display_map = []
-        this.display_deplay = 0
-        this.display_animation = null
-        this.display_poll_worker = false
         this.display_body = document.createElement("DIV")
         this.display_view = document.createElement("CANVAS")
         this.display_context = this.display_view.getContext("2d")
         this.move_rate = this.option.el.clientWidth / option.rate / 1000
-        this.display_worker = this.display_poll.bind(this)
         this.display_init()
     }
     
@@ -69,8 +66,8 @@ export default class Display extends EventEmitter {
      */
     display_draw(deplay) {
         this.display_clear()
-        const offset_date = Math.ceil(deplay - this.display_deplay)
-        const move = this.display_deplay === 0 ? 0 : offset_date * this.move_rate
+        const offset_date = Math.ceil(deplay - this.deplay)
+        const move = offset_date * this.move_rate
         this.display_map.forEach((value, i) => {
             this.display_context.drawImage(value.bitmap, value.offset, 0)
             this.display_map[i].offset -= move
@@ -98,31 +95,7 @@ export default class Display extends EventEmitter {
     display_poll(deplay) {
         const is_empty = this.display_map.length === 0
         !is_empty && this.display_draw(deplay)
-        !is_empty && this.display_start()
-        is_empty && this.display_stop()
-        this.display_deplay = deplay
         this.display_overflow()
-    }
-    
-    /**
-     * 停止主循环
-     * @returns {void}
-     * @private
-     */
-    display_stop() {
-        this.display_poll_worker = false
-        cancelAnimationFrame(this.display_animation)
-    }
-    
-    /**
-     * 启动主循环
-     * @returns {void}
-     * @private
-     */
-    display_start() {
-        this.display_poll_worker = true
-        const animation = requestAnimationFrame(this.display_worker)
-        this.display_animation = animation
     }
     
     /**
@@ -139,6 +112,5 @@ export default class Display extends EventEmitter {
         const is_overflow = prediction_offset <= clientWidth
         const offset = is_overflow ? clientWidth : prediction_offset
         this.display_map.unshift({bitmap, offset})
-        !this.display_poll_worker && this.display_start()
     }
 }
