@@ -17,10 +17,10 @@
 
 ### API
 
-#### {@class} new Qalaxy(option): Qalaxy
+#### `{@class}` new Qalaxy(option): Qalaxy
 - `option`  `{Option}` 事件循环总线.
 
-#### {@interface} Option
+#### `{@interface}` Option
 - `el` `{Element}` 容器节点.
 - `rate` `{number}` 弹幕速率 (弹幕多少秒从屏幕右边到左边).
 - `color` `{string}` 默认字体颜色.
@@ -28,9 +28,12 @@
 - `size` `{number}` 字体大小.
 - `font` `{string}` 字体.
 
-#### {@interface} Value
+#### `{@interface}` Value
 - `text` `{string}` 弹幕内容.
 - `color` `{string}` 弹幕颜色.
+
+#### `{@function}` Qalaxy.append(values): void
+- `values` `{Array<Value>}` 弹幕列表.
 
 
 ### License
