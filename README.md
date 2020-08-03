@@ -15,6 +15,29 @@
 * 更灵活的控制（暂停恢复等）.
 
 
+### API
+```ts
+export interface Option {
+    el: Element  // 容器节点
+    rate: number  // 弹幕速率 (弹幕多少秒从屏幕右边到左边)
+    color: string  // 默认字体颜色
+    opacity: number  // 透明度
+    size: number  // 字体大小
+    font: string  // 字体
+}
+
+export interface Value {
+    text: string  // 弹幕内容
+    color: string  // 弹幕颜色
+}
+
+class Qalaxy {
+    constructor(option: Option)
+    append(values: Value[])
+}
+```
+
+
 ### License
 [GPL](./LICENSE)
 Copyright (c) 2020 Mr.Panda.
