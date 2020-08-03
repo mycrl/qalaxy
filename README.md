@@ -28,7 +28,7 @@
 ### API
 
 #### `{@class}` new Qalaxy(option): Qalaxy
-- `option`  `{Option}` 事件循环总线.
+- `option`  `{Option}` 配置.
 
 #### `{@interface}` Option
 - `el` `{Element}` 容器节点.
