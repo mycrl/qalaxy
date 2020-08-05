@@ -5,7 +5,7 @@
         "esModuleInterop": true,
         "incremental": true,
         "target": "ES2018",
-        "module": "commonjs",
+        "module": "ES6",
         "outDir": "./dist",
         "strict": true,
         "moduleResolution": "node",

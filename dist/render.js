@@ -1,14 +1,9 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const display_1 = __importDefault(require("./display"));
+import Display from "./display";
 /**
  * 渲染器
  * @class
  */
-class Render extends display_1.default {
+export default class Render extends Display {
     /**
      * @param {element} [option.el] 画布节点
      * @param {element} [option.render] 渲染画布节点
@@ -153,4 +148,3 @@ class Render extends display_1.default {
         this.render_forward();
     }
 }
-exports.default = Render;

@@ -1,16 +1,11 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const configure_1 = __importDefault(require("./util/configure"));
-const style_1 = __importDefault(require("./util/style"));
-const render_1 = __importDefault(require("./render"));
+import Configure from "./util/configure";
+import StyleRender from "./util/style";
+import Render from "./render";
 /**
  * 弹幕类
  * @class
  */
-class Qalaxy extends render_1.default {
+export default class Qalaxy extends Render {
     /**
      * @param {element} [option.el] 画布节点
      * @param {element} [option.render] 渲染画布节点
@@ -22,7 +17,7 @@ class Qalaxy extends render_1.default {
      * @constructor
      */
     constructor(option) {
-        super(configure_1.default(option));
+        super(Configure(option));
         this.poll_worker = this.qalaxy_poll.bind(this);
         this.qalaxy_init();
     }
@@ -32,7 +27,7 @@ class Qalaxy extends render_1.default {
      * @private
      */
     qalaxy_init() {
-        style_1.default();
+        StyleRender();
         requestAnimationFrame(this.poll_worker);
     }
     /**
@@ -57,4 +52,3 @@ class Qalaxy extends render_1.default {
         this.render_push(values);
     }
 }
-exports.default = Qalaxy;

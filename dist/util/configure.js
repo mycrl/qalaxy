@@ -1,5 +1,4 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * 配置处理
  *
@@ -7,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @returns {Option} 参数
  * @public
  */
-exports.default = (option) => ({
+export default (option) => ({
     render: document.createElement("CANVAS"),
     el: document.querySelector(option.el),
     color: option.color || "#FFFFFF",

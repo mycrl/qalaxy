@@ -1,10 +1,9 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * 事件循环类
  * @class
  */
-class EventEmitter {
+export default class EventEmitter {
     constructor() {
         this.listener = {};
         this.events = {};
@@ -83,4 +82,3 @@ class EventEmitter {
         }
     }
 }
-exports.default = EventEmitter;

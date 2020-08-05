@@ -1,5 +1,4 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * 模板
  * @const
@@ -15,9 +14,8 @@ const STYLE_TEMPLATE = `
  * @returns {void}
  * @public
  */
-function default_1() {
+export default function () {
     const elem = document.createElement("STYLE");
     elem.innerHTML = STYLE_TEMPLATE;
     document.head.appendChild(elem);
 }
-exports.default = default_1;

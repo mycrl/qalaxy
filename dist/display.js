@@ -1,14 +1,9 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const events_1 = __importDefault(require("./util/events"));
+import EventEmitter from "./util/events";
 /**
  * 可视区
  * @class
  */
-class Display extends events_1.default {
+export default class Display extends EventEmitter {
     /**
      * @param {element} [option.el] 画布节点
      * @param {element} [option.render] 渲染画布节点
@@ -111,4 +106,3 @@ class Display extends events_1.default {
         this.display_map.unshift({ bitmap, offset });
     }
 }
-exports.default = Display;
