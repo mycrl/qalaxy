@@ -1,10 +1,28 @@
-import EventEmitter from "./util/events.js"
+import EventEmitter from "./util/events"
+import {Option} from "./util/configure"
+
+/**
+ * 单屏
+ * @param {ImageBitmap} bitmap 位图
+ * @param {number} offset 偏移
+ */
+interface Value {
+    bitmap: ImageBitmap
+    offset: number
+}
 
 /**
  * 可视区
  * @class
  */
-export default class Display extends EventEmitter {
+export default class Display extends EventEmitter<ImageBitmap> {
+    private display_context: CanvasRenderingContext2D
+    private display_view: HTMLCanvasElement
+    private display_map: Array<Value>
+    private display_body: HTMLElement
+    public move_rate: number
+    public deplay?: number
+    public option: Option
     
     /**
      * @param {element} [option.el] 画布节点
@@ -16,14 +34,14 @@ export default class Display extends EventEmitter {
      * @param {string} [option.font] 默认字体
      * @constructor
      */
-    constructor(option) {
+    constructor(option: Option) {
         super()
-        this.deplay = null
         this.option = option
         this.display_map = []
+        this.deplay = undefined
         this.display_body = document.createElement("DIV")
-        this.display_view = document.createElement("CANVAS")
-        this.display_context = this.display_view.getContext("2d")
+        this.display_view = <HTMLCanvasElement>document.createElement("CANVAS")
+        this.display_context = this.display_view.getContext("2d")!
         this.move_rate = this.option.el.clientWidth / option.rate / 1000
         this.display_init()
     }
@@ -33,7 +51,7 @@ export default class Display extends EventEmitter {
      * @returns {void}
      * @private
      */
-    display_init() {
+    private display_init(): void {
         const {clientWidth, clientHeight} = this.option.el
         this.display_body.appendChild(this.option.render)
         this.display_body.appendChild(this.display_view)
@@ -41,7 +59,7 @@ export default class Display extends EventEmitter {
         this.display_view.className = "Qalaxy_Display"
         this.display_view.width = Math.floor(clientWidth * 2)
         this.display_view.height = clientHeight
-        this.display_view.style.opacity = this.option.opacity
+        this.display_view.style.opacity = String(this.option.opacity!)
         this.option.render.className = "Qalaxy_Render"
         this.option.render.width = Math.floor(clientWidth * 2)
         this.option.render.height = clientHeight
@@ -53,7 +71,7 @@ export default class Display extends EventEmitter {
      * @returns {void}
      * @private
      */
-    display_clear() {
+    private display_clear(): void {
         const {width, height} = this.display_view
         this.display_context.clearRect(0, 0, width, height)
     }
@@ -64,9 +82,9 @@ export default class Display extends EventEmitter {
      * @returns {void}
      * @private
      */
-    display_draw(deplay) {
+    private display_draw(deplay: number): void {
         this.display_clear()
-        const offset_date = Math.ceil(deplay - this.deplay)
+        const offset_date = Math.ceil(deplay - this.deplay!)
         const move = offset_date * this.move_rate
         this.display_map.forEach((value, i) => {
             this.display_context.drawImage(value.bitmap, value.offset, 0)
@@ -79,7 +97,7 @@ export default class Display extends EventEmitter {
      * @returns {void}
      * @private
      */
-    display_overflow() {
+    private display_overflow(): void {
         if (this.display_map.length > 0) {
             const {offset, bitmap: {width}} = this.display_map[0]
             offset <= 0 - width && this.display_map.pop()
@@ -90,9 +108,9 @@ export default class Display extends EventEmitter {
      * 主循环
      * @param {number} deplay 时间偏移
      * @returns {void}
-     * @private
+     * @public
      */
-    display_poll(deplay) {
+    public display_poll(deplay: number): void {
         const is_empty = this.display_map.length === 0
         !is_empty && this.display_draw(deplay)
         this.display_overflow()
@@ -104,7 +122,7 @@ export default class Display extends EventEmitter {
      * @returns {void}
      * @public
      */
-    display_push(bitmap) {
+    public display_push(bitmap: ImageBitmap): void {
         const {clientWidth} = this.option.el
         const template = {offset: clientWidth, bitmap: {width: 0}}
         const fore = this.display_map[0] || template

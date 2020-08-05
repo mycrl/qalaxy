@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "skipLibCheck": true,
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "incremental": true,
+        "target": "ES2018",
+        "module": "commonjs",
+        "outDir": "./dist",
+        "strict": true,
+        "moduleResolution": "node",
+        "baseUrl": "./",
+        "rootDirs": [ "./" ],
+        "extendedDiagnostics": false,
+        "experimentalDecorators": true
+    },
+    "include": [
+        "./**/*"
+    ],
+    "exclude": [
+        "node_modules/**/*",
+        "dist/**/*"
+    ]
+}

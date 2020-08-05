@@ -16,7 +16,7 @@ const STYLE_TEMPLATE = `
  * @returns {void}
  * @public
  */
-export default function() {
+export default function(): void {
     const elem = document.createElement("STYLE")
     elem.innerHTML = STYLE_TEMPLATE
     document.head.appendChild(elem)

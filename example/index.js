@@ -1,4 +1,4 @@
-import Qalaxy from "../src/index.js"
+import Qalaxy from "../dist/index.js"
 import {MockValues} from "./util.js"
 
 const CONFIGURE = {

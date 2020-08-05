@@ -1,13 +1,16 @@
-import StyleRender from "./util/style.js"
-import Configure from "./util/configure.js"
-import Render from "./render.js"
-
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const configure_1 = __importDefault(require("./util/configure"));
+const style_1 = __importDefault(require("./util/style"));
+const render_1 = __importDefault(require("./render"));
 /**
  * 弹幕类
  * @class
  */
-export default class Qalaxy extends Render {
-    
+class Qalaxy extends render_1.default {
     /**
      * @param {element} [option.el] 画布节点
      * @param {element} [option.render] 渲染画布节点
@@ -19,21 +22,19 @@ export default class Qalaxy extends Render {
      * @constructor
      */
     constructor(option) {
-        super(Configure(option))
-        this.poll_worker = this.qalaxy_poll.bind(this)
-        this.qalaxy_init()
+        super(configure_1.default(option));
+        this.poll_worker = this.qalaxy_poll.bind(this);
+        this.qalaxy_init();
     }
-    
     /**
      * 初始化
      * @returns {void}
      * @private
      */
     qalaxy_init() {
-        StyleRender()
-        requestAnimationFrame(this.poll_worker)
+        style_1.default();
+        requestAnimationFrame(this.poll_worker);
     }
-    
     /**
      * 主循环
      * @param {number} deplay 时间偏移
@@ -41,12 +42,11 @@ export default class Qalaxy extends Render {
      * @private
      */
     qalaxy_poll(deplay) {
-        this.display_poll(deplay)
-        this.render_poll(deplay)
-        this.deplay = deplay
-        requestAnimationFrame(this.poll_worker)
+        this.display_poll(deplay);
+        this.render_poll(deplay);
+        this.deplay = deplay;
+        requestAnimationFrame(this.poll_worker);
     }
-    
     /**
      * 添加弹幕列表
      * @param {object[]} values 弹幕列表
@@ -54,6 +54,7 @@ export default class Qalaxy extends Render {
      * @public
      */
     append(values) {
-        this.render_push(values)
+        this.render_push(values);
     }
 }
+exports.default = Qalaxy;
