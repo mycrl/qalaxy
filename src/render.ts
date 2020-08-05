@@ -1,6 +1,6 @@
 import {Option} from "./util/configure"
 import Display from "./display"
-import {Value} from "./"
+import {Value} from "./index"
 
 interface Elem extends Value {
     offset?: number

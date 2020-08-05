@@ -1,4 +1,4 @@
-import EventEmitter from "./util/events";
+import EventEmitter from "./util/events.js";
 /**
  * 可视区
  * @class

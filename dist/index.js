@@ -1,6 +1,6 @@
-import Configure from "./util/configure";
-import StyleRender from "./util/style";
-import Render from "./render";
+import Configure from "./util/configure.js";
+import StyleRender from "./util/style.js";
+import Render from "./render.js";
 /**
  * 弹幕类
  * @class

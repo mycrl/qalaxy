@@ -1,4 +1,4 @@
-import Display from "./display";
+import Display from "./display.js";
 /**
  * 渲染器
  * @class
